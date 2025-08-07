@@ -48,6 +48,7 @@
             --font-family: 'Inter', sans-serif;
             --success-color: #27ae60;
             --warning-color: #f39c12;
+            --error-color: #e74c3c;
         }
 
         body {
@@ -88,1135 +89,143 @@
             margin: 0.5rem auto 0;
         }
         
-        /* --- File Input with Drag & Drop --- */
-        .file-upload-area {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
+        /* --- Search Section --- */
+        .search-section {
+            background-color: var(--surface-color);
             padding: 2rem;
-            background-color: var(--surface-color);
-            border: 2px dashed var(--border-color);
             border-radius: 12px;
-            transition: all 0.3s ease;
-            cursor: pointer;
-        }
-        
-        .file-upload-area:hover, .file-upload-area.drag-over {
-            background-color: #2a2a2a;
-            border-color: var(--primary-color);
-            transform: translateY(-2px);
+            box-shadow: 0 4px 15px var(--shadow-color);
         }
 
-        .file-upload-area.drag-over {
-            background-color: rgba(52, 152, 219, 0.1);
-            border-color: var(--success-color);
-        }
-
-        .upload-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
-            margin-bottom: 0.5rem;
-        }
-
-        .file-label {
-            background-color: var(--primary-color);
-            color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s;
-            border: none;
-        }
-        
-        .file-label:hover {
-            background-color: var(--primary-hover);
-        }
-
-        #fileInput {
-            display: none;
-        }
-
-        #file-list {
-            color: var(--text-muted-color);
-            font-style: italic;
-        }
-
-        /* --- Action Buttons --- */
-        .action-buttons {
+        .search-header {
             display: flex;
-            gap: 1rem;
             justify-content: center;
-            flex-wrap: wrap;
-            margin-bottom: 1rem;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
-        .action-btn {
-            background-color: var(--surface-color);
+        .search-method-btn {
+            padding: 10px 20px;
+            background-color: var(--bg-color);
             border: 2px solid var(--border-color);
             color: var(--text-color);
-            padding: 10px 20px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 500;
             transition: all 0.3s;
+        }
+
+        .search-method-btn.active {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+
+        .search-content {
+            display: none;
+        }
+
+        .search-content.active {
+            display: block;
+        }
+
+        .search-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            font-family: 'Monaco', 'Courier New', monospace;
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .search-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .search-btn {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
             display: flex;
             align-items: center;
             gap: 0.5rem;
         }
 
-        .action-btn:hover {
-            border-color: var(--primary-color);
-            background-color: var(--primary-color);
-            transform: translateY(-2px);
+        .search-btn:hover:not(:disabled) {
+            background-color: var(--primary-hover);
         }
 
-        .action-btn:disabled {
+        .search-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
         }
 
-        /* --- Dashboard --- */
-        #dashboard {
-            display: grid;
-            grid-template-columns: 280px 1fr;
-            gap: 2rem;
-            align-items: start;
+        .search-info {
+            color: var(--text-muted-color);
+            font-size: 0.9rem;
         }
 
-        /* --- Filters --- */
-        #filters {
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-            position: sticky;
-            top: 2rem;
-        }
-
-        .filter-group {
-            background-color: var(--surface-color);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-        }
-
-        .filter-group h3 {
-            margin-top: 0;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.75rem;
-        }
-        
-        .filter-group select {
-            width: 100%;
-            padding: 10px;
+        .search-progress {
+            display: none;
             background-color: var(--bg-color);
-            color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            font-size: 1rem;
-            margin-bottom: 10px;
-        }
-        
-        .filter-group select:focus {
-            outline: none;
-            border-color: var(--primary-color);
-        }
-        
-        /* --- Main Content --- */
-        #main-content {
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-            min-width: 0;
-        }
-
-        /* --- View Toggle --- */
-        .view-toggle {
-            display: flex;
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            padding: 0.5rem;
-            gap: 0.5rem;
-        }
-
-        .view-btn {
-            flex: 1;
-            padding: 10px;
-            background: none;
-            border: none;
-            color: var(--text-muted-color);
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: 500;
-        }
-
-        .view-btn.active {
-            background-color: var(--primary-color);
-            color: white;
-        }
-        
-        /* --- Charts --- */
-        .charts-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 2rem;
-        }
-
-        .chart-wrapper {
-            background-color: var(--surface-color);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            position: relative;
-            cursor: pointer;
-            transition: transform 0.3s;
-        }
-
-        .chart-wrapper:hover {
-            transform: translateY(-2px);
-        }
-
-        .chart-expand-btn {
-            position: absolute;
-            top: 10px;
-            right: 10px;
-            background: rgba(52, 152, 219, 0.8);
-            border: none;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-        }
-
-        /* --- Map --- */
-        #mapView {
-            height: 600px;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px var(--shadow-color);
-        }
-
-        /* --- Results List --- */
-        #results-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
             padding: 1rem;
-            background: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-        }
-        
-        #results-count {
-            font-weight: 500;
+            border-radius: 8px;
+            margin-top: 1rem;
         }
 
-        #results-list {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-        }
-        
-        .study-item {
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
-            overflow: hidden;
-            border: 1px solid transparent;
-            transition: border-color 0.3s;
-        }
-
-        .study-item:hover {
-            border-color: var(--primary-color);
-        }
-
-        .study-header {
-            padding: 1.5rem;
-        }
-
-        .study-title {
-            font-size: 1.25rem;
-            font-weight: 600;
-            margin: 0 0 0.75rem 0;
-        }
-        
-        .study-link {
-            color: var(--primary-color);
-            text-decoration: none;
-            font-weight: 500;
-        }
-        
-        .study-link:hover {
-            text-decoration: underline;
-        }
-
-        .abstract-toggle {
+        .search-progress.active {
             display: block;
+        }
+
+        .progress-bar {
             width: 100%;
-            text-align: left;
-            background: none;
-            border: none;
-            padding: 1rem 1.5rem;
-            cursor: pointer;
-            font-size: 1rem;
-            color: var(--text-muted-color);
-            background-color: rgba(255, 255, 255, 0.03);
-            border-top: 1px solid var(--border-color);
-            transition: background-color 0.3s;
-        }
-
-        .abstract-toggle:hover {
-            background-color: rgba(255, 255, 255, 0.07);
-        }
-        
-        .abstract-toggle::after {
-            content: '▼';
-            float: right;
-            transition: transform 0.3s;
-        }
-        
-        .abstract-toggle.open::after {
-            transform: rotate(180deg);
-        }
-
-        .abstract-content {
-            max-height: 0;
+            height: 20px;
+            background-color: var(--border-color);
+            border-radius: 10px;
             overflow: hidden;
-            transition: max-height 0.5s ease-in-out, padding 0.5s ease-in-out;
-            padding: 0 1.5rem;
-            line-height: 1.6;
+            margin: 0.5rem 0;
         }
 
-        .abstract-content.open {
-            max-height: 1000px;
-            padding: 1.5rem;
-        }
-
-        /* --- Modal --- */
-        .modal {
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            transition: width 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(5px);
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s, visibility 0.3s;
-        }
-        
-        .modal.open {
-            opacity: 1;
-            visibility: visible;
+            color: white;
+            font-size: 0.8rem;
         }
 
-        .modal-content {
-            background-color: var(--surface-color);
-            padding: 2.5rem;
-            border-radius: 12px;
-            box-shadow: 0 5px 25px var(--shadow-color);
-            width: 90%;
-            max-width: 900px;
-            max-height: 90vh;
-            overflow-y: auto;
-            transform: scale(0.95);
-            transition: transform 0.3s;
-        }
-        
-        .modal.open .modal-content {
-            transform: scale(1);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
-        }
-        
-        .modal-header h2 {
-            margin: 0;
-            font-size: 1.8rem;
-            color: var(--primary-color);
-        }
-
-        .close-button {
-            background: none;
-            border: none;
-            font-size: 2.5rem;
-            color: var(--text-muted-color);
-            cursor: pointer;
-            transition: color 0.3s;
-        }
-
-        .close-button:hover {
-            color: var(--text-color);
-        }
-        
-        .modal-body p {
-            line-height: 1.7;
-            color: var(--text-muted-color);
-        }
-        .modal-body strong {
-            color: var(--text-color);
-        }
-
-        .chart-modal-content {
-            height: 70vh;
-            width: 100%;
-        }
-        
-        /* --- Loader --- */
-        #loader {
-            display: none;
+        .search-status {
             text-align: center;
-        }
-
-        .spinner {
-            border: 4px solid rgba(255, 255, 255, 0.1);
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            border-left-color: var(--primary-color);
-            animation: spin 1s ease infinite;
-            margin: 1rem auto;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* --- Hidden class --- */
-        .hidden {
-            display: none !important;
-        }
-
-        /* --- Responsive Design --- */
-        @media (max-width: 768px) {
-            # The user wants me to rewrite the code so that when a filter is applied, it updates the other filters to only show options that still have studies available.
-
-The code is an HTML page with JavaScript for a PubMed Research Analyzer. It has filters for USA Authors, Location (State and City), Department, and Researcher.
-
-Currently, the filters are populated once with all possible values from the studies. When filters are applied, it just filters the studies but doesn't update the filter options.
-
-I need to make it dynamic: when a filter changes, update the other select boxes to only include options that appear in the currently filtered studies.
-
-For example, if I select a department, then the states should only show states that have studies in that department.
-
-It should be interdependent.
-
-The USA Author filter is different; it's not based on specific values but on criteria.
-
-The filters are:
-
-- usaAuthorFilter: select with fixed options (any, at-least-one, first, last, all)
-
-- stateFilter
-
-- cityFilter
-
-- deptFilter
-
-- researcherFilter
-
-The dynamic ones are state, city, dept, researcher.
-
-The usaAuthorFilter can stay fixed, as it's not value-based.
-
-To implement this, in applyFilters(), after computing filteredStudies, I need to repopulate the other filters based on the current filteredStudies.
-
-But since the filters are interdependent, when one changes, I need to update the others based on the current selections except for itself.
-
-A common way is: when a filter changes, compute the filtered studies using all filters except the ones that need updating, but actually, it's better to compute the possible options for each filter based on the studies that match the other filters.
-
-For each filter, the options should be those that appear in studies that match all the other filters.
-
-When a filter is set to a specific value, the other filters show options compatible with that.
-
-When reset to 'all', show all possible given the other selections.
-
-To do this, I can modify populateFilters to take a set of studies and populate based on that.
-
-But since there are multiple filters, I need a way to get the available options for each.
-
-One way is: after applying filters, call a function to updateFilterOptions() which populates each select with options from the current filteredStudies, but that would include only the selected ones, no.
-
-That's not right.
-
-If I select state = "California", then filteredStudies are those with California.
-
-Then, for cityFilter, I want to show only cities that appear in those California studies.
-
-For deptFilter, only depts in California studies, etc.
-
-But for stateFilter, since it's selected, it should stay with all states? No, when state is selected, the other filters update to match.
-
-If I then select a city, say "Los Angeles", then filteredStudies become California + Los Angeles.
-
-Then, I should update the other filters: deptFilter to depts in CA LA studies, researcher to those in CA LA, but stateFilter should now only show "California" ? Or keep all?
-
-The user said: "update the other filters leaving just the ones with studies yet"
-
-So, for the non-selected filters, show only options that have studies in the current filtered set.
-
-But actually, since when a filter is 'all', it's not restricting.
-
-The standard way in faceted search is: each filter shows counts/options based on the current search results, i.e., after applying other filters.
-
-So, the options for a filter are those that appear in the current filteredStudies (which are filtered by the other selected filters).
-
-But for the filter itself, if it's set to a value, its options should still show other possible values that could be selected instead.
-
-But in this case, since it's single select, and 'all' is an option.
-
-To make it dynamic:
-
-In applyFilters():
-
-1. Compute filteredStudies using all current filter values.
-
-2. Then, update the options for all filters based on the full set, but no.
-
-To show available options:
-
-I need to compute for each filter, the possible values that, if selected, would not result in zero results, given the other filters.
-
-For each filter, compute the studies that match all filters except this one, and then get the unique values for this filter from those studies.
-
-That way, even if this filter is set to something, the options show all possible that are compatible with the other selections.
-
-And for the count, often show counts.
-
-But the user didn't ask for counts, just "leaving just the ones with studies yet"
-
-So, only show options that have at least one study matching the other filters.
-
-Yes.
-
-To implement:
-
-I can write a function getAvailableOptions(filterKey) {
-
-  // compute studies filtered by all filters except this one
-
-  const tempFiltered = allStudies.filter(study => {
-
-    // check all conditions except the one for filterKey
-
-  });
-
-  then extract the unique values for that filter from tempFiltered.
-
-}
-
-Then, after applyFilters(), for each filter, populate it with getAvailableOptions(that filter), and restore the current selection if possible.
-
-But to avoid infinite loops, since changing select triggers applyFilters, but populating shouldn't trigger change.
-
-When populating, I can set a flag to ignore change events.
-
-Or, better, populate only after filtering, and use removeEventListener/addEventListener around population.
-
-But in JS, changing options doesn't trigger change, only user selection does.
-
-No, setting value programmatically doesn't trigger change event.
-
-Yes, so I can do:
-
-In applyFilters():
-
-  // compute filteredStudies using current values
-
-  // render results, update charts etc.
-
-  // then updateFilterOptions()
-
-Where updateFilterOptions() {
-
-  updateSelect(stateFilter, getAvailableStates());
-
-  updateSelect(cityFilter, getAvailableCities());
-
-  etc.
-
-}
-
-And getAvailableStates() {
-
-  // filter studies using all filters except state
-
-  const criteria = usaAuthorFilter.value;
-
-  const selCity = cityFilter.value;
-
-  const selDept = deptFilter.value;
-
-  const selRes = researcherFilter.value;
-
-  const tempFiltered = allStudies.filter(study => 
-
-    checkUSAAuthorCriteria(study, criteria) &&
-
-    (selCity === 'all' || study.authors.some(a => a.affiliations.some(aff => aff.city === selCity))) &&
-
-    (selDept === 'all' || study.authors.some(a => a.affiliations.some(aff => aff.department === selDept))) &&
-
-    (selRes === 'all' || study.authors.some(a => a.name === selRes))
-
-  );
-
-  // then extract unique states from tempFiltered
-
-  const states = new Set();
-
-  tempFiltered.forEach(study => {
-
-    study.authors.forEach(author => {
-
-      author.affiliations.forEach(aff => {
-
-        if (aff.isUSA && aff.state) states.add(aff.state);
-
-      });
-
-    });
-
-  });
-
-  return [...states].sort();
-
-}
-
-Similarly for other filters.
-
-For usaAuthorFilter, since it's fixed, no need to update its options.
-
-Yes.
-
-And for updateSelect(selectEl, availableItems) {
-
-  const currentValue = selectEl.value;
-
-  selectEl.innerHTML = '<option value="all">All ...</option>';
-
-  availableItems.forEach(item => {
-
-    const opt = document.createElement('option');
-
-    opt.value = item;
-
-    opt.text = item;
-
-    selectEl.appendChild(opt);
-
-  });
-
-  // restore selection if still available, else set to 'all'
-
-  if (currentValue !== 'all' && availableItems.includes(currentValue)) {
-
-    selectEl.value = currentValue;
-
-  } else {
-
-    selectEl.value = 'all';
-
-  }
-
-}
-
-If the current selection is no longer available, reset it to 'all' and maybe re-apply filters.
-
-If I reset it, I need to call applyFilters again if changed.
-
-To avoid recursion, I can check if value changed, and if so, call applyFilters.
-
-Since change event is not triggered by code, I can manually check.
-
-In updateFilterOptions, collect if any filter was reset, and if so, call applyFilters again at the end.
-
-Since it's interdependent, it might need a loop until stable, but in practice, since resetting to 'all' broadens, it should be fine.
-
-A safer way: compute all available options first, then update all selects, then if any was reset, call applyFilters recursively once.
-
-To keep it simple, since the number is small, I can do it.
-
-The user example: "I selected some department, so it will update the other filters leaving just the ones with studies yet"
-
-When select dept, then update states to only those that have that dept, cities that have that dept, researchers that have that dept.
-
-The current dept remains selected, and since getAvailableDepts would be computed ignoring the dept filter, so available depts are those compatible with other filters (which might be all if others are 'all').
-
-When I select dept = X, then in applyFilters, filteredStudies are those with dept X (and others if set).
-
-Then in updateFilterOptions, for states, getAvailableStates() ignores the state filter (which is 'all' probably), but uses the dept=X, so states from studies with dept=X.
-
-For cities, same.
-
-For researchers, same.
-
-For depts, getAvailableDepts() would ignore dept filter, so use other filters (if any), and get all depts that appear in studies matching other filters.
-
-Since dept was just selected to X, but if no other filters, available depts would be all depts, so it keeps showing all, including X.
-
-But the user wants "leaving just the ones with studies yet", I think it means show only options that have studies in the current context.
-
-But for the filter itself, should it show other depts that are available given other filters?
-
-Yes, typically yes, so user can switch to another dept.
-
-If I want to hide unavailable, but since when dept=X, the available depts ignoring dept would show all possible depts, but wait.
-
-No, if other filters are set, say state=CA, then when ignoring dept, available depts are those in CA.
-
-When I select dept=X, if X is in CA, it stays.
-
-Yes.
-
-For the selected filter, it still shows other options if they are compatible.
-
-To "leave just the ones with studies yet", I think they mean update to show only relevant options.
-
-In some systems, the facets show all possible, with counts, and gray out zero.
-
-But since no counts, and selects, better to only include options with at least one.
-
-Yes, and that's what the above does.
-
-For a filter, by ignoring its own selection when computing available, it shows all options that would yield at least one if selected (given others).
-
-And if the current value is not in available (which shouldn't happen unless external change), reset.
-
-But in normal use, it won't.
-
-Yes.
-
-I need to implement getAvailableFor(field) where field is 'state', 'city', 'dept', 'researcher'
-
-I'll make a function getFilteredStudiesIgnoring(ignoreField) {
-
-  const criteria = usaAuthorFilter.value;
-
-  return allStudies.filter(study => {
-
-    let match = checkUSAAuthorCriteria(study, criteria);
-
-    if (ignoreField !== 'state') {
-
-      const sel = stateFilter.value;
-
-      match = match && (sel === 'all' || study.authors.some(a => a.affiliations.some(aff => aff.state === sel)));
-
-    }
-
-    if (ignoreField !== 'city') {
-
-      const sel = cityFilter.value;
-
-      match = match && (sel === 'all' || study.authors.some(a => a.affiliations.some(aff => aff.city === sel)));
-
-    }
-
-    if (ignoreField !== 'dept') {
-
-      const sel = deptFilter.value;
-
-      match = match && (sel === 'all' || study.authors.some(a => a.affiliations.some(aff => aff.department === sel)));
-
-    }
-
-    if (ignoreField !== 'researcher') {
-
-      const sel = researcherFilter.value;
-
-      match = match && (sel === 'all' || study.authors.some(a => a.name === sel));
-
-    }
-
-    return match;
-
-  });
-
-}
-
-Then, getAvailableStates() {
-
-  const studies = getFilteredStudiesIgnoring('state');
-
-  const set = new Set();
-
-  studies.forEach(study => {
-
-    study.authors.forEach(a => {
-
-      a.affiliations.forEach(aff => {
-
-        if (aff.isUSA && aff.state) set.add(aff.state);
-
-      });
-
-    });
-
-  });
-
-  return [...set].sort();
-
-}
-
-Similarly for cities, depts, researchers.
-
-For researchers: set.add(a.name) but only if authorHasUSAAffiliation(a)? No, since the filter is on any author == selected, but since usaAuthorFilter is separate, but in the parsing, allStudies are already those with isUSAResearch true, meaning at least one USA aff.
-
-But for researcher filter, it's all authors in the study, but only studies with USA.
-
-Anyway, in populate, it's researchers.add(author.name) for all authors in USA studies.
-
-Similarly here.
-
-For getAvailableResearchers() {
-
-  const studies = getFilteredStudiesIgnoring('researcher');
-
-  const set = new Set();
-
-  studies.forEach(study => {
-
-    study.authors.forEach(a => {
-
-      set.add(a.name);
-
-    });
-
-  });
-
-  return [...set].sort();
-
-}
-
-Yes.
-
-For depts: if (aff.isUSA && aff.department) set.add(aff.department)
-
-For cities: if (aff.isUSA && aff.city) set.add(aff.city)
-
-Yes.
-
-Then, in updateFilterOptions() {
-
-  const availableStates = getAvailableStates();
-
-  populateSelect(stateFilter, availableStates, 'States');
-
-  const availableCities = getAvailableCities();
-
-  populateSelect(cityFilter, availableCities, 'Cities');
-
-  const availableDepts = getAvailableDepts();
-
-  populateSelect(deptFilter, availableDepts, 'Departments');
-
-  const availableResearchers = getAvailableResearchers();
-
-  populateSelect(researcherFilter, availableResearchers, 'Researchers');
-
-}
-
-And modify populateSelect to:
-
-function populateSelect(element, items, plural) {
-
-  const currentValue = element.value;
-
-  element.innerHTML = `<option value="all">All ${plural}</option>`;
-
-  items.forEach(item => {
-
-    const option = document.createElement('option');
-
-    option.value = item;
-
-    option.textContent = item;
-
-    element.appendChild(option);
-
-  });
-
-  if (items.includes(currentValue) || currentValue === 'all') {
-
-    element.value = currentValue;
-
-  } else {
-
-    element.value = 'all';
-
-    // since changed, need to reapply
-
-    applyFilters(); // but this might cause recursion if multiple resets
-
-  }
-
-}
-
-If multiple need reset, calling applyFilters inside might call update again.
-
-To avoid, I can collect if any reset happened, and after updating all, if any reset, call applyFilters once.
-
-Yes, better.
-
-So, let needsReapply = false;
-
-Then, in populateSelect, if not includes and current !== 'all', then element.value = 'all'; needsReapply = true;
-
-Then, after all populates, if (needsReapply) applyFilters();
-
-But since applyFilters calls updateFilterOptions at the end, it would recurse.
-
-But if after reset, the available might change, but since resetting to 'all' broadens, the available will include more, and since now value='all', it won't reset again.
-
-So, if I call applyFilters again, it will recompute filteredStudies with the reset filters, then update options again, but this time no reset needed.
-
-So, depth 2 at most.
-
-But to prevent infinite, I can add a flag.
-
-But in practice, ok.
-
-I can make applyFilters not call update if inUpdate or something.
-
-But simplest: since it's small, and recursion shallow, ok.
-
-I need to call updateFilterOptions after applyFilters.
-
-In the code, after processFiles, populateFilters(allStudies), but now I can rename populateFilters to initialPopulate, but since now dynamic, in processFiles, after allStudies = ..., then resetFilters() which sets all to 'all', then applyFilters(), which will compute filtered = all, then updateFilterOptions which populates with all available (which is all since all 'all').
-
-Yes.
-
-The initial populateFilters is similar to updateFilterOptions with no filters set.
-
-Yes.
-
-Also, the usaAuthorFilter change should also trigger update, since it affects.
-
-Yes, since it's in the listeners.
-
-For usaAuthorFilter, since its options are fixed, no need to update it.
-
-But in getFilteredStudiesIgnoring, it always includes the usaAuthor criteria, since it's not ignored for the fields.
-
-Yes, because usaAuthor is not dynamic.
-
-If I change usaAuthor, it might affect available locations etc., yes, and since change calls applyFilters, which updates options.
-
-Yes.
-
-I think this works.
-
-Now, I need to implement these functions.
-
-Also, note that in parseAffiliation, the state is set to full name US_STATES[part]
-
-Yes.
-
-I think that's it.
-
-For the code, I need to rewrite the entire HTML, but only change the script part.
-
-The user said "rewrite all this code", so output the full modified HTML.
-
-Yes.
-
-Also, perhaps add counts to options, like "California (10)", but the user didn't ask, so no.
-
-Just the options that have studies.
-
-Yes.
-
-One thing: when selecting a specific, the other filters update to only those compatible.
-
-And if selecting makes some other filter's current value invalid, reset it to 'all' and reapply.
-
-But since the selection is before update, and update checks if current still available.
-
-When change happens, applyFilters computes with new value, then update options, and if some other filter's value not in new available, reset it and reapply.
-
-Yes.
-
-For example, suppose state=CA, then available cities = those in CA.
-
-If I then set state=NY, then filteredStudies become those in NY, then available cities = those in NY, but if city was set to a CA city, it won't be in available, so reset city to 'all', and since reset, reapply filters, now with state=NY, city='all', recompute filtered, update options again, now cities in NY, and since city='all' is ok, no more.
-
-Yes, perfect.
-
-I need to implement this in the script.
-
-Let me outline the changes:
-
-- Add the getFilteredStudiesIgnoring(ignoreField) function.
-
-- Add getAvailableStates(), getAvailableCities(), getAvailableDepts(), getAvailableResearchers() using above.
-
-- Add updateFilterOptions() which computes available for each, then populateSelect for each.
-
-- Modify populateSelect to take plural or label, and handle the reset, but since needsReapply, make it return true if reset.
-
-No, since global, I can let needsReapply = false; before loop, then in each populate if reset set true.
-
-Then after all, if(needsReapply) applyFilters();
-
-- In applyFilters, at the end, call updateFilterOptions();
-
-- Remove the old populateFilters, and in processFiles, after allStudies, actionButtons etc, then resetFilters(); which sets all to 'all', applyFilters();
-
-But usaAuthor default is 'any', state etc 'all'
-
-In resetFilters, set usaAuthorFilter.value = 'any';
-
-Others 'all'
-
-Yes.
-
-In the HTML, the selects have <option value="all">All States</option> etc.
-
-But initially empty except that.
-
-No, in code, populated later.
-
-In processFiles, after parsing, if(allStudies.length >0){ ... populateFilters(allStudies); applyFilters(); ...}
-
-Now, instead, remove populateFilters, and in if, dashboard.remove hidden, then resetFilters(); // which will call applyFilters, and inside it updateFilterOptions which will populate with all.
-
-But in updateFilterOptions, if no studies, but anyway.
-
-In resetFilters, set values, then applyFilters();
-
-Yes.
-
-But initially, before files, selects are empty except the all option? No, in HTML, they have <option value="all">All ...</option>
-
-For state: <option value="all">All States</option>
-
-Similarly others.
-
-Yes.
-
-When populating, we clear and add.
-
-Yes.
-
-One issue: first time, when processFiles, allStudies set, then resetFilters sets 'all', applyFilters computes filtered=allStudies (since all 'all'), then updateFilterOptions computes available ignoring each, but since others 'all', available = all possible from allStudies.
-
-Then populate each with those.
-
-Perfect.
-
-Later, when filter changes, it works.
-
-For usaAuthorFilter, since 'any' is default, and options fixed.
-
-Yes.
-
-I think that's the plan.```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Advanced PubMed Research Analyzer</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-      #filters {
-    overflow-y: auto;
-    max-height: calc(100vh - 4rem);
-    scrollbar-width: thin; /* For Firefox */
-    scrollbar-color: var(--border-color) var(--surface-color);
-}
-
-#filters::-webkit-scrollbar {
-    width: 6px; /* Thin width */
-}
-
-#filters::-webkit-scrollbar-track {
-    background: var(--surface-color); /* Darker track */
-    border-radius: 10px;
-}
-
-#filters::-webkit-scrollbar-thumb {
-    background: var(--border-color); /* Dark thumb */
-    border-radius: 10px;
-}
-
-#filters::-webkit-scrollbar-thumb:hover {
-    background: #555; /* Slightly lighter on hover for better UX */
-}
-        :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --primary-color: #3498db;
-            --primary-hover: #2980b9;
-            --text-color: #f5f5f5;
-            --text-muted-color: #9e9e9e;
-            --border-color: #333;
-            --shadow-color: rgba(0, 0, 0, 0.5);
-            --font-family: 'Inter', sans-serif;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-        }
-
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            margin: 0;
-            padding: 2rem;
-            font-size: 16px;
-        }
-
-        /* --- Main Layout & Header --- */
-        .container {
-            max-width: 1600px;
-            margin: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 2rem;
-        }
-
-        header {
-            text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1.5rem;
-        }
-
-        header h1 {
-            font-size: 2.5rem;
-            margin: 0;
-            color: var(--primary-color);
-            font-weight: 700;
-        }
-
-        header p {
-            font-size: 1.1rem;
             color: var(--text-muted-color);
-            max-width: 700px;
-            margin: 0.5rem auto 0;
+            margin-top: 0.5rem;
         }
-        
+
         /* --- File Input with Drag & Drop --- */
         .file-upload-area {
             display: flex;
@@ -1646,6 +655,21 @@ I think that's the plan.```html
                 align-items: center;
             }
         }
+
+        /* --- Error Message --- */
+        .error-message {
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 1px solid var(--error-color);
+            color: var(--error-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+        }
+
+        .error-message.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
@@ -1661,6 +685,8 @@ I think that's the plan.```html
                 <p>Welcome to the <strong>Advanced PubMed Research Analyzer</strong> - your comprehensive tool for exploring scientific literature!</p>
                 <p><strong>✨ New Features:</strong></p>
                 <ul>
+                    <li><strong>🔍 Direct PubMed Search:</strong> Search PubMed directly with complex queries</li>
+                    <li><strong>📥 Bulk Download:</strong> Fetch unlimited results (even > 10,000 articles)</li>
                     <li><strong>🎯 Drag & Drop:</strong> Simply drag PubMed .txt files to upload</li>
                     <li><strong>🗺️ Interactive Map:</strong> Visualize research locations with clickable pins</li>
                     <li><strong>📊 Expandable Charts:</strong> Click any chart to view in full screen</li>
@@ -1670,7 +696,7 @@ I think that's the plan.```html
                 </ul>
                 <p><strong>How to get started:</strong></p>
                 <ol>
-                    <li>Drag & drop or select PubMed .txt files</li>
+                    <li>Use PubMed search or upload .txt files</li>
                     <li>Explore data with interactive charts and map</li>
                     <li>Use filters to narrow down results</li>
                     <li>Export your findings to Excel</li>
@@ -1697,17 +723,56 @@ I think that's the plan.```html
     <div class="container">
         <header>
             <h1>🧬 Advanced PubMed Research Analyzer</h1>
-            <p>Discover, Analyze, and Export Scientific Research Trends Across the United States</p>
+            <p>Search, Discover, Analyze, and Export Scientific Research Trends Across the United States</p>
         </header>
 
-        <div class="file-upload-area" id="fileUploadArea">
-            <div class="upload-icon">📁</div>
-            <button class="file-label" onclick="document.getElementById('fileInput').click()">
-                Select PubMed Files
-            </button>
-            <p>or drag and drop .txt files here</p>
-            <input type="file" id="fileInput" multiple accept=".txt">
-            <p id="file-list">No files selected.</p>
+        <!-- Search Section -->
+        <div class="search-section">
+            <div class="search-header">
+                <button class="search-method-btn active" data-method="search">🔍 PubMed Search</button>
+                <button class="search-method-btn" data-method="upload">📁 Upload Files</button>
+            </div>
+
+            <!-- PubMed Search -->
+            <div class="search-content active" id="searchContent">
+                <div class="search-input-group">
+                    <textarea class="search-input" id="searchQuery" placeholder='Enter your PubMed search query. Example:
+("XEN45" OR "XEN 45" OR "Xen gel stent")
+AND
+("ab interno" OR "ab externo")
+AND
+(glaucoma)'></textarea>
+                    <div class="search-controls">
+                        <button class="search-btn" id="searchBtn">
+                            <span>🔍</span>
+                            <span>Search PubMed</span>
+                        </button>
+                        <div class="search-info">
+                            <span id="searchInfo">Use boolean operators (AND, OR, NOT) and quotes for exact phrases</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="search-progress" id="searchProgress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                    </div>
+                    <div class="search-status" id="searchStatus">Initializing search...</div>
+                </div>
+                <div class="error-message" id="errorMessage"></div>
+            </div>
+
+            <!-- File Upload -->
+            <div class="search-content" id="uploadContent">
+                <div class="file-upload-area" id="fileUploadArea">
+                    <div class="upload-icon">📁</div>
+                    <button class="file-label" onclick="document.getElementById('fileInput').click()">
+                        Select PubMed Files
+                    </button>
+                    <p>or drag and drop .txt files here</p>
+                    <input type="file" id="fileInput" multiple accept=".txt">
+                    <p id="file-list">No files selected.</p>
+                </div>
+            </div>
         </div>
 
         <div class="action-buttons hidden" id="actionButtons">
@@ -1720,11 +785,14 @@ I think that's the plan.```html
             <button class="action-btn" id="resetBtn">
                 🔄 Reset Filters
             </button>
+            <button class="action-btn" id="clearBtn">
+                🗑️ Clear Data
+            </button>
         </div>
         
         <div id="loader">
             <div class="spinner"></div>
-            <p>Analyzing files...</p>
+            <p>Analyzing data...</p>
         </div>
 
         <div id="dashboard" class="hidden">
@@ -1826,6 +894,17 @@ I think that's the plan.```html
         const resultsCountEl = document.getElementById('results-count');
         const resultsListEl = document.getElementById('results-list');
 
+        // Search elements
+        const searchMethodBtns = document.querySelectorAll('.search-method-btn');
+        const searchContent = document.getElementById('searchContent');
+        const uploadContent = document.getElementById('uploadContent');
+        const searchQuery = document.getElementById('searchQuery');
+        const searchBtn = document.getElementById('searchBtn');
+        const searchProgress = document.getElementById('searchProgress');
+        const progressFill = document.getElementById('progressFill');
+        const searchStatus = document.getElementById('searchStatus');
+        const errorMessage = document.getElementById('errorMessage');
+
         // Filters
         const usaAuthorFilter = document.getElementById('usaAuthorFilter');
         const stateFilter = document.getElementById('stateFilter');
@@ -1849,6 +928,7 @@ I think that's the plan.```html
         const exportBtn = document.getElementById('exportBtn');
         const statsBtn = document.getElementById('statsBtn');
         const resetBtn = document.getElementById('resetBtn');
+        const clearBtn = document.getElementById('clearBtn');
 
         // --- State ---
         let allStudies = [];
@@ -1857,6 +937,7 @@ I think that's the plan.```html
         let chartData = {}; // Store chart data for expansion
         let map = null;
         let currentView = 'charts';
+        let isSearching = false;
 
         // --- Constants ---
         const USA_SYNONYMS = ['USA', 'U.S.A', 'U.S.', 'US', 'United States of America', 'United States'];
@@ -1896,6 +977,11 @@ I think that's the plan.```html
             "Wisconsin": [44.95, -89.5], "Wyoming": [42.7475, -107.2085], "District of Columbia": [38.8974, -77.0365]
         };
 
+        // PubMed API configuration
+        const PUBMED_API_BASE = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+        const BATCH_SIZE = 500; // Number of IDs to fetch per request
+        const DELAY_MS = 350; // Delay between API calls (3 requests per second limit)
+
         // --- Modal Logic ---
         const showModal = (modal) => modal.classList.add('open');
         const closeModal = (modal) => modal.classList.remove('open');
@@ -1909,6 +995,174 @@ I think that's the plan.```html
         });
 
         showModal(welcomeModal);
+
+        // --- Search Method Toggle ---
+        searchMethodBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const method = btn.dataset.method;
+                searchMethodBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                
+                if (method === 'search') {
+                    searchContent.classList.add('active');
+                    uploadContent.classList.remove('active');
+                } else {
+                    searchContent.classList.remove('active');
+                    uploadContent.classList.add('active');
+                }
+            });
+        });
+
+        // --- PubMed Search Logic ---
+        searchBtn.addEventListener('click', performPubMedSearch);
+        searchQuery.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' && e.ctrlKey) {
+                performPubMedSearch();
+            }
+        });
+
+        async function performPubMedSearch() {
+            const query = searchQuery.value.trim();
+            if (!query) {
+                showError('Please enter a search query');
+                return;
+            }
+
+            if (isSearching) {
+                showError('Search already in progress');
+                return;
+            }
+
+            isSearching = true;
+            searchBtn.disabled = true;
+            searchProgress.classList.add('active');
+            errorMessage.classList.remove('active');
+            dashboard.classList.add('hidden');
+            actionButtons.classList.add('hidden');
+
+            try {
+                updateProgress(0, 'Searching PubMed...');
+                
+                // Step 1: Search for PMIDs
+                const searchUrl = `${PUBMED_API_BASE}esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=100000&retmode=json&usehistory=y`;
+                const searchResponse = await fetch(searchUrl);
+                const searchData = await searchResponse.json();
+
+                if (!searchData.esearchresult || !searchData.esearchresult.idlist) {
+                    throw new Error('Invalid search response');
+                }
+
+                const totalResults = parseInt(searchData.esearchresult.count);
+                const webenv = searchData.esearchresult.webenv;
+                const querykey = searchData.esearchresult.querykey;
+                
+                updateProgress(5, `Found ${totalResults.toLocaleString()} articles. Fetching details...`);
+
+                if (totalResults === 0) {
+                    showError('No results found for your query');
+                    return;
+                }
+
+                // Step 2: Fetch all PMIDs using history
+                let allPMIDs = [];
+                const maxResults = Math.min(totalResults, 100000); // Limit to 100k for performance
+                
+                for (let start = 0; start < maxResults; start += 10000) {
+                    const retmax = Math.min(10000, maxResults - start);
+                    const idUrl = `${PUBMED_API_BASE}esearch.fcgi?db=pubmed&query_key=${querykey}&WebEnv=${webenv}&retstart=${start}&retmax=${retmax}&retmode=json`;
+                    const idResponse = await fetch(idUrl);
+                    const idData = await idResponse.json();
+                    allPMIDs = allPMIDs.concat(idData.esearchresult.idlist);
+                    
+                    const progress = 5 + (start / maxResults) * 20;
+                    updateProgress(progress, `Retrieved ${allPMIDs.length.toLocaleString()} of ${maxResults.toLocaleString()} IDs...`);
+                    
+                    if (start + retmax < maxResults) {
+                        await sleep(DELAY_MS);
+                    }
+                }
+
+                // Step 3: Fetch article details in batches
+                const allMedlineTexts = [];
+                const totalBatches = Math.ceil(allPMIDs.length / BATCH_SIZE);
+                
+                for (let i = 0; i < allPMIDs.length; i += BATCH_SIZE) {
+                    const batchIds = allPMIDs.slice(i, i + BATCH_SIZE);
+                    const batchNum = Math.floor(i / BATCH_SIZE) + 1;
+                    
+                    const progress = 25 + (i / allPMIDs.length) * 70;
+                    updateProgress(progress, `Fetching batch ${batchNum} of ${totalBatches}...`);
+                    
+                    const fetchUrl = `${PUBMED_API_BASE}efetch.fcgi?db=pubmed&id=${batchIds.join(',')}&rettype=medline&retmode=text`;
+                    const fetchResponse = await fetch(fetchUrl);
+                    const medlineText = await fetchResponse.text();
+                    allMedlineTexts.push(medlineText);
+                    
+                    if (i + BATCH_SIZE < allPMIDs.length) {
+                        await sleep(DELAY_MS);
+                    }
+                }
+
+                // Step 4: Parse results
+                updateProgress(95, 'Parsing results...');
+                const combinedText = allMedlineTexts.join('\n\n');
+                allStudies = parsePubmedText(combinedText);
+                
+                updateProgress(100, `Found ${allStudies.length} USA-based studies`);
+                
+                if (allStudies.length > 0) {
+                    setTimeout(() => {
+                        searchProgress.classList.remove('active');
+                        dashboard.classList.remove('hidden');
+                        actionButtons.classList.remove('hidden');
+                        resetFilters();
+                        initializeMap();
+                    }, 1000);
+                } else {
+                    showError('No USA-based studies found in the search results');
+                }
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                showError(`Search failed: ${error.message}`);
+            } finally {
+                isSearching = false;
+                searchBtn.disabled = false;
+                searchProgress.classList.remove('active');
+            }
+        }
+
+        function updateProgress(percentage, message) {
+            progressFill.style.width = `${percentage}%`;
+            progressFill.textContent = `${Math.round(percentage)}%`;
+            searchStatus.textContent = message;
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('active');
+            setTimeout(() => {
+                errorMessage.classList.remove('active');
+            }, 5000);
+        }
+
+        function sleep(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        // --- Clear Data ---
+        if (clearBtn) {
+            clearBtn.addEventListener('click', () => {
+                if (confirm('Are you sure you want to clear all data?')) {
+                    allStudies = [];
+                    filteredStudies = [];
+                    dashboard.classList.add('hidden');
+                    actionButtons.classList.add('hidden');
+                    searchQuery.value = '';
+                    fileListDisplay.textContent = 'No files selected.';
+                }
+            });
+        }
 
         // --- Drag & Drop File Handling ---
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
