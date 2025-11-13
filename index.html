@@ -2230,10 +2230,13 @@ AND
             const stateCities = {};
 
             studies.forEach(study => {
+                // Get unique states for this study to count each study only once per state
+                const studyStates = new Set();
+
                 study.authors.forEach(author => {
                     author.affiliations.forEach(aff => {
                         if (aff.isUSA && aff.state) {
-                            stateCounts[aff.state] = (stateCounts[aff.state] || 0) + 1;
+                            studyStates.add(aff.state);
 
                             // Track cities per state
                             if (aff.city) {
@@ -2244,6 +2247,11 @@ AND
                             }
                         }
                     });
+                });
+
+                // Count this study once per unique state it appears in
+                studyStates.forEach(state => {
+                    stateCounts[state] = (stateCounts[state] || 0) + 1;
                 });
             });
 
@@ -2300,14 +2308,22 @@ AND
             const cityStates = {};
 
             studies.forEach(study => {
+                // Get unique cities for this study to count each study only once per city
+                const studyCities = new Set();
+
                 study.authors.forEach(author => {
                     author.affiliations.forEach(aff => {
                         if (aff.isUSA && aff.city && aff.state) {
                             const cityKey = `${aff.city}, ${aff.state}`;
-                            cityCounts[cityKey] = (cityCounts[cityKey] || 0) + 1;
+                            studyCities.add(cityKey);
                             cityStates[cityKey] = aff.state;
                         }
                     });
+                });
+
+                // Count this study once per unique city it appears in
+                studyCities.forEach(cityKey => {
+                    cityCounts[cityKey] = (cityCounts[cityKey] || 0) + 1;
                 });
             });
 
@@ -2368,17 +2384,25 @@ AND
             const deptStates = {};
 
             studies.forEach(study => {
+                // Get unique departments for this study to count each study only once per department
+                const studyDepts = new Set();
+
                 study.authors.forEach(author => {
                     author.affiliations.forEach(aff => {
                         if (aff.isUSA && aff.department && aff.state) {
                             const deptKey = aff.department;
-                            deptCounts[deptKey] = (deptCounts[deptKey] || 0) + 1;
+                            studyDepts.add(deptKey);
                             if (!deptStates[deptKey]) {
                                 deptStates[deptKey] = new Set();
                             }
                             deptStates[deptKey].add(aff.state);
                         }
                     });
+                });
+
+                // Count this study once per unique department it appears in
+                studyDepts.forEach(deptKey => {
+                    deptCounts[deptKey] = (deptCounts[deptKey] || 0) + 1;
                 });
             });
 
