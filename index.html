@@ -37,27 +37,35 @@
     background: #555; /* Slightly lighter on hover for better UX */
 }
         :root {
-            --bg-color: #121212;
-            --surface-color: #1e1e1e;
-            --primary-color: #3498db;
-            --primary-hover: #2980b9;
-            --text-color: #f5f5f5;
-            --text-muted-color: #9e9e9e;
-            --border-color: #333;
-            --shadow-color: rgba(0, 0, 0, 0.5);
+            --bg-color: #0a0e27;
+            --bg-gradient: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            --surface-color: #1a1f3a;
+            --surface-gradient: linear-gradient(135deg, #1a1f3a 0%, #252b4a 100%);
+            --primary-color: #4a9eff;
+            --primary-hover: #357abd;
+            --primary-gradient: linear-gradient(135deg, #4a9eff 0%, #357abd 100%);
+            --accent-color: #9d4edd;
+            --accent-hover: #7b2cbf;
+            --text-color: #ffffff;
+            --text-muted-color: #a8b2d1;
+            --border-color: #2d3454;
+            --shadow-color: rgba(0, 0, 0, 0.7);
+            --glow-color: rgba(74, 158, 255, 0.3);
             --font-family: 'Inter', sans-serif;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --error-color: #e74c3c;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --error-color: #ef4444;
         }
 
         body {
             font-family: var(--font-family);
-            background-color: var(--bg-color);
+            background: var(--bg-gradient);
+            background-attachment: fixed;
             color: var(--text-color);
             margin: 0;
             padding: 2rem;
             font-size: 16px;
+            min-height: 100vh;
         }
 
         /* --- Main Layout & Header --- */
@@ -71,30 +79,51 @@
 
         header {
             text-align: center;
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 2rem;
+            margin-bottom: 0.5rem;
         }
 
         header h1 {
-            font-size: 2.5rem;
+            font-size: 3rem;
             margin: 0;
-            color: var(--primary-color);
-            font-weight: 700;
+            background: linear-gradient(135deg, #4a9eff 0%, #9d4edd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            text-shadow: 0 0 40px var(--glow-color);
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        @keyframes glow {
+            from { filter: drop-shadow(0 0 10px var(--glow-color)); }
+            to { filter: drop-shadow(0 0 20px var(--glow-color)); }
         }
 
         header p {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             color: var(--text-muted-color);
-            max-width: 700px;
-            margin: 0.5rem auto 0;
+            max-width: 750px;
+            margin: 1rem auto 0;
+            line-height: 1.6;
         }
         
         /* --- Search Section --- */
         .search-section {
-            background-color: var(--surface-color);
-            padding: 2rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
+            background: var(--surface-gradient);
+            padding: 2.5rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px var(--shadow-color), 0 0 0 1px var(--border-color);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .search-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px var(--shadow-color), 0 0 0 1px var(--primary-color);
         }
 
         .search-header {
@@ -105,19 +134,49 @@
         }
 
         .search-method-btn {
-            padding: 10px 20px;
-            background-color: var(--bg-color);
+            padding: 12px 28px;
+            background: rgba(255, 255, 255, 0.03);
             border: 2px solid var(--border-color);
             color: var(--text-color);
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-method-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: var(--primary-gradient);
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .search-method-btn:hover::before {
+            left: 0;
+        }
+
+        .search-method-btn:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--glow-color);
         }
 
         .search-method-btn.active {
-            background-color: var(--primary-color);
+            background: var(--primary-gradient);
             border-color: var(--primary-color);
+            box-shadow: 0 4px 20px var(--glow-color);
+        }
+
+        .search-method-btn.active::before {
+            left: 0;
         }
 
         .search-content {
@@ -136,20 +195,28 @@
 
         .search-input {
             width: 100%;
-            padding: 1rem;
-            background-color: var(--bg-color);
+            padding: 1.25rem;
+            background: rgba(10, 14, 39, 0.6);
             color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
             font-size: 1rem;
             font-family: 'Monaco', 'Courier New', monospace;
             resize: vertical;
-            min-height: 100px;
+            min-height: 120px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
 
         .search-input:focus {
             outline: none;
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--glow-color), 0 4px 12px var(--shadow-color);
+            background: rgba(10, 14, 39, 0.8);
+        }
+
+        .search-input:hover {
+            border-color: rgba(74, 158, 255, 0.5);
         }
 
         .search-controls {
@@ -161,26 +228,54 @@
         }
 
         .search-btn {
-            background-color: var(--primary-color);
+            background: var(--primary-gradient);
             color: white;
-            padding: 12px 24px;
+            padding: 14px 32px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            box-shadow: 0 4px 15px var(--glow-color);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .search-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .search-btn:hover::after {
+            width: 300px;
+            height: 300px;
         }
 
         .search-btn:hover:not(:disabled) {
-            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px var(--glow-color);
+        }
+
+        .search-btn:active:not(:disabled) {
+            transform: translateY(0);
         }
 
         .search-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.6;
             cursor: not-allowed;
+            transform: none;
         }
 
         .search-info {
@@ -231,45 +326,86 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem;
-            padding: 2rem;
-            background-color: var(--surface-color);
-            border: 2px dashed var(--border-color);
-            border-radius: 12px;
-            transition: all 0.3s ease;
+            gap: 1.25rem;
+            padding: 3rem 2rem;
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.05) 0%, rgba(157, 78, 221, 0.05) 100%);
+            border: 3px dashed var(--border-color);
+            border-radius: 20px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }
-        
-        .file-upload-area:hover, .file-upload-area.drag-over {
-            background-color: #2a2a2a;
+
+        .file-upload-area::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(74, 158, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .file-upload-area:hover::before {
+            opacity: 1;
+            animation: rotate 10s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .file-upload-area:hover {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(157, 78, 221, 0.1) 100%);
             border-color: var(--primary-color);
-            transform: translateY(-2px);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 12px 40px var(--glow-color);
         }
 
         .file-upload-area.drag-over {
-            background-color: rgba(52, 152, 219, 0.1);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(74, 158, 255, 0.15) 100%);
             border-color: var(--success-color);
+            border-style: solid;
+            transform: scale(1.02);
+            box-shadow: 0 12px 50px rgba(16, 185, 129, 0.3);
         }
 
         .upload-icon {
-            font-size: 3rem;
-            color: var(--primary-color);
+            font-size: 4rem;
+            background: linear-gradient(135deg, #4a9eff 0%, #9d4edd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
             margin-bottom: 0.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .file-upload-area:hover .upload-icon {
+            transform: scale(1.1) translateY(-5px);
         }
 
         .file-label {
-            background-color: var(--primary-color);
+            background: var(--primary-gradient);
             color: white;
-            padding: 12px 24px;
-            border-radius: 8px;
+            padding: 14px 32px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 600;
-            transition: background-color 0.3s;
+            font-weight: 700;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
             border: none;
+            box-shadow: 0 4px 15px var(--glow-color);
+            position: relative;
+            z-index: 1;
         }
-        
+
         .file-label:hover {
-            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px var(--glow-color);
         }
 
         #fileInput {
@@ -291,28 +427,55 @@
         }
 
         .action-btn {
-            background-color: var(--surface-color);
+            background: var(--surface-gradient);
             border: 2px solid var(--border-color);
             color: var(--text-color);
-            padding: 10px 20px;
-            border-radius: 8px;
+            padding: 12px 24px;
+            border-radius: 12px;
             cursor: pointer;
-            font-weight: 500;
-            transition: all 0.3s;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .action-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            transform: translate(-50%, -50%);
+            transition: width 0.4s, height 0.4s;
+            z-index: -1;
+        }
+
+        .action-btn:hover::before {
+            width: 300px;
+            height: 300px;
         }
 
         .action-btn:hover {
             border-color: var(--primary-color);
-            background-color: var(--primary-color);
             transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--glow-color);
+            color: white;
+        }
+
+        .action-btn:active {
+            transform: translateY(0);
         }
 
         .action-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            transform: none;
         }
 
         /* --- Dashboard --- */
@@ -333,34 +496,56 @@
         }
 
         .filter-group {
-            background-color: var(--surface-color);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
+            background: var(--surface-gradient);
+            padding: 1.75rem;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .filter-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px var(--shadow-color);
+            border-color: rgba(74, 158, 255, 0.3);
         }
 
         .filter-group h3 {
             margin-top: 0;
-            margin-bottom: 1rem;
-            color: var(--primary-color);
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 1.25rem;
+            background: linear-gradient(135deg, #4a9eff 0%, #9d4edd 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            border-bottom: 2px solid var(--border-color);
             padding-bottom: 0.75rem;
+            font-weight: 700;
         }
         
         .filter-group select{
             width: 100%;
-            padding: 10px;
-            background-color: var(--bg-color);
+            padding: 12px 14px;
+            background: rgba(10, 14, 39, 0.6);
             color: var(--text-color);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
             font-size: 1rem;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
         }
-        
+
+        .filter-group select:hover {
+            border-color: rgba(74, 158, 255, 0.5);
+            background: rgba(10, 14, 39, 0.8);
+        }
+
         .filter-group select:focus {
             outline: none;
             border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px var(--glow-color);
+            background: rgba(10, 14, 39, 0.9);
         }
         
         /* --- Main Content --- */
@@ -405,17 +590,38 @@
         }
 
         .chart-wrapper {
-            background-color: var(--surface-color);
-            padding: 1.5rem;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
+            background: var(--surface-gradient);
+            padding: 1.75rem;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            border: 1px solid rgba(255, 255, 255, 0.05);
             position: relative;
             cursor: pointer;
-            transition: transform 0.3s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+
+        .chart-wrapper::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .chart-wrapper:hover::before {
+            transform: scaleX(1);
         }
 
         .chart-wrapper:hover {
-            transform: translateY(-2px);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 48px var(--shadow-color);
+            border-color: rgba(74, 158, 255, 0.3);
         }
 
         .chart-expand-btn {
@@ -444,10 +650,11 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 1rem;
-            background: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
+            padding: 1.5rem;
+            background: var(--surface-gradient);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px var(--shadow-color);
+            border: 1px solid rgba(255, 255, 255, 0.05);
         }
         
         #results-count {
@@ -461,16 +668,36 @@
         }
         
         .study-item {
-            background-color: var(--surface-color);
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--shadow-color);
+            background: var(--surface-gradient);
+            border-radius: 16px;
+            box-shadow: 0 8px 32px var(--shadow-color);
             overflow: hidden;
-            border: 1px solid transparent;
-            transition: border-color 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .study-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-gradient);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease;
+        }
+
+        .study-item:hover::before {
+            transform: scaleX(1);
         }
 
         .study-item:hover {
-            border-color: var(--primary-color);
+            border-color: rgba(74, 158, 255, 0.4);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 40px var(--shadow-color);
         }
 
         .study-header {
@@ -729,12 +956,12 @@
         <!-- Search Section -->
         <div class="search-section">
             <div class="search-header">
-                <button class="search-method-btn active" data-method="search">🔍 PubMed Search</button>
-                <button class="search-method-btn" data-method="upload">📁 Upload Files</button>
+                <button class="search-method-btn" data-method="search">🔍 PubMed Search</button>
+                <button class="search-method-btn active" data-method="upload">📁 Upload Files</button>
             </div>
 
             <!-- PubMed Search -->
-            <div class="search-content active" id="searchContent">
+            <div class="search-content" id="searchContent">
                 <div class="search-input-group">
                     <textarea class="search-input" id="searchQuery" placeholder='Enter your PubMed search query. Example:
 ("XEN45" OR "XEN 45" OR "Xen gel stent")
@@ -762,7 +989,7 @@ AND
             </div>
 
             <!-- File Upload -->
-            <div class="search-content" id="uploadContent">
+            <div class="search-content active" id="uploadContent">
                 <div class="file-upload-area" id="fileUploadArea">
                     <div class="upload-icon">📁</div>
                     <button class="file-label" onclick="document.getElementById('fileInput').click()">
@@ -1042,74 +1269,100 @@ AND
 
             try {
                 updateProgress(0, 'Searching PubMed...');
-                
-                // Step 1: Search for PMIDs
-                const searchUrl = `${PUBMED_API_BASE}esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=100000&retmode=json&usehistory=y`;
+
+                // Step 1: Search for PMIDs with history server
+                const searchUrl = `${PUBMED_API_BASE}esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=0&retmode=json&usehistory=y`;
                 const searchResponse = await fetch(searchUrl);
+
+                if (!searchResponse.ok) {
+                    throw new Error(`Search request failed: ${searchResponse.status}`);
+                }
+
                 const searchData = await searchResponse.json();
 
-                if (!searchData.esearchresult || !searchData.esearchresult.idlist) {
-                    throw new Error('Invalid search response');
+                if (!searchData.esearchresult) {
+                    throw new Error('Invalid search response from PubMed');
                 }
 
                 const totalResults = parseInt(searchData.esearchresult.count);
                 const webenv = searchData.esearchresult.webenv;
                 const querykey = searchData.esearchresult.querykey;
-                
-                updateProgress(5, `Found ${totalResults.toLocaleString()} articles. Fetching details...`);
+
+                if (!webenv || !querykey) {
+                    throw new Error('Failed to get history session from PubMed');
+                }
+
+                updateProgress(10, `Found ${totalResults.toLocaleString()} articles. Fetching details...`);
 
                 if (totalResults === 0) {
                     showError('No results found for your query');
                     return;
                 }
 
-                // Step 2: Fetch all PMIDs using history
-                let allPMIDs = [];
-                const maxResults = Math.min(totalResults, 100000); // Limit to 100k for performance
-                
-                for (let start = 0; start < maxResults; start += 10000) {
-                    const retmax = Math.min(10000, maxResults - start);
-                    const idUrl = `${PUBMED_API_BASE}esearch.fcgi?db=pubmed&query_key=${querykey}&WebEnv=${webenv}&retstart=${start}&retmax=${retmax}&retmode=json`;
-                    const idResponse = await fetch(idUrl);
-                    const idData = await idResponse.json();
-                    allPMIDs = allPMIDs.concat(idData.esearchresult.idlist);
-                    
-                    const progress = 5 + (start / maxResults) * 20;
-                    updateProgress(progress, `Retrieved ${allPMIDs.length.toLocaleString()} of ${maxResults.toLocaleString()} IDs...`);
-                    
-                    if (start + retmax < maxResults) {
-                        await sleep(DELAY_MS);
-                    }
-                }
-
-                // Step 3: Fetch article details in batches
+                // Step 2: Fetch article details in batches using WebEnv and query_key
+                // This is much more efficient than fetching IDs first
                 const allMedlineTexts = [];
-                const totalBatches = Math.ceil(allPMIDs.length / BATCH_SIZE);
-                
-                for (let i = 0; i < allPMIDs.length; i += BATCH_SIZE) {
-                    const batchIds = allPMIDs.slice(i, i + BATCH_SIZE);
-                    const batchNum = Math.floor(i / BATCH_SIZE) + 1;
-                    
-                    const progress = 25 + (i / allPMIDs.length) * 70;
-                    updateProgress(progress, `Fetching batch ${batchNum} of ${totalBatches}...`);
-                    
-                    const fetchUrl = `${PUBMED_API_BASE}efetch.fcgi?db=pubmed&id=${batchIds.join(',')}&rettype=medline&retmode=text`;
-                    const fetchResponse = await fetch(fetchUrl);
-                    const medlineText = await fetchResponse.text();
-                    allMedlineTexts.push(medlineText);
-                    
-                    if (i + BATCH_SIZE < allPMIDs.length) {
+                const maxResults = Math.min(totalResults, 100000); // Limit to 100k for performance
+                const totalBatches = Math.ceil(maxResults / BATCH_SIZE);
+
+                for (let start = 0; start < maxResults; start += BATCH_SIZE) {
+                    const retmax = Math.min(BATCH_SIZE, maxResults - start);
+                    const batchNum = Math.floor(start / BATCH_SIZE) + 1;
+
+                    const progress = 10 + (start / maxResults) * 85;
+                    updateProgress(progress, `Fetching batch ${batchNum} of ${totalBatches} (${start + retmax}/${maxResults})...`);
+
+                    // Use WebEnv and query_key directly in efetch - more efficient for large result sets
+                    const fetchUrl = `${PUBMED_API_BASE}efetch.fcgi?db=pubmed&query_key=${querykey}&WebEnv=${webenv}&retstart=${start}&retmax=${retmax}&rettype=medline&retmode=text`;
+
+                    let retries = 3;
+                    let success = false;
+
+                    while (retries > 0 && !success) {
+                        try {
+                            const fetchResponse = await fetch(fetchUrl);
+
+                            if (!fetchResponse.ok) {
+                                throw new Error(`Fetch request failed: ${fetchResponse.status}`);
+                            }
+
+                            const medlineText = await fetchResponse.text();
+
+                            if (medlineText && medlineText.trim().length > 0) {
+                                allMedlineTexts.push(medlineText);
+                                success = true;
+                            } else {
+                                throw new Error('Empty response from PubMed');
+                            }
+                        } catch (fetchError) {
+                            retries--;
+                            if (retries > 0) {
+                                console.warn(`Batch ${batchNum} failed, retrying... (${retries} attempts left)`);
+                                await sleep(DELAY_MS * 2); // Longer delay on retry
+                            } else {
+                                console.error(`Batch ${batchNum} failed after all retries:`, fetchError);
+                                // Continue with next batch instead of failing completely
+                            }
+                        }
+                    }
+
+                    if (start + BATCH_SIZE < maxResults) {
                         await sleep(DELAY_MS);
                     }
                 }
 
-                // Step 4: Parse results
+                // Step 3: Parse results
                 updateProgress(95, 'Parsing results...');
+
+                if (allMedlineTexts.length === 0) {
+                    throw new Error('Failed to fetch any data from PubMed');
+                }
+
                 const combinedText = allMedlineTexts.join('\n\n');
                 allStudies = parsePubmedText(combinedText);
-                
+
                 updateProgress(100, `Found ${allStudies.length} USA-based studies`);
-                
+
                 if (allStudies.length > 0) {
                     setTimeout(() => {
                         searchProgress.classList.remove('active');
@@ -1121,14 +1374,13 @@ AND
                 } else {
                     showError('No USA-based studies found in the search results');
                 }
-                
+
             } catch (error) {
                 console.error('Search error:', error);
-                showError(`Search failed: ${error.message}`);
+                showError(`Search failed: ${error.message}. Please try again.`);
             } finally {
                 isSearching = false;
                 searchBtn.disabled = false;
-                searchProgress.classList.remove('active');
             }
         }
 
