@@ -638,6 +638,48 @@
         }
 
         /* --- Map --- */
+        .map-container {
+            position: relative;
+        }
+
+        .map-view-toggle {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            background: var(--surface-gradient);
+            padding: 0.5rem;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .map-view-btn {
+            flex: 1;
+            padding: 10px 16px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px solid var(--border-color);
+            color: var(--text-color);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .map-view-btn:hover {
+            border-color: var(--primary-color);
+            background: rgba(74, 158, 255, 0.1);
+        }
+
+        .map-view-btn.active {
+            background: var(--primary-gradient);
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 12px var(--glow-color);
+        }
+
         #mapView {
             height: 600px;
             border-radius: 20px;
@@ -689,6 +731,77 @@
 
         .leaflet-popup-tip {
             background: var(--surface-color);
+        }
+
+        /* --- Active Filter Banner --- */
+        .active-filter-banner {
+            display: none;
+            background: var(--surface-gradient);
+            border: 2px solid var(--primary-color);
+            border-radius: 12px;
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 20px var(--glow-color);
+            animation: slideDown 0.3s ease;
+        }
+
+        .active-filter-banner.show {
+            display: flex;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .filter-banner-text {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            flex: 1;
+        }
+
+        .filter-banner-icon {
+            font-size: 1.5rem;
+        }
+
+        .filter-banner-label {
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .filter-banner-value {
+            color: var(--text-color);
+            font-weight: 700;
+        }
+
+        .remove-filter-btn {
+            background: rgba(239, 68, 68, 0.2);
+            border: 2px solid var(--error-color);
+            color: var(--error-color);
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .remove-filter-btn:hover {
+            background: var(--error-color);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4);
         }
 
         /* --- Results List --- */
@@ -1130,7 +1243,23 @@ AND
                     </div>
                 </div>
 
-                <div id="mapView" class="hidden"></div>
+                <div id="mapViewContainer" class="hidden map-container">
+                    <div class="map-view-toggle">
+                        <button class="map-view-btn active" data-map-mode="state">
+                            <span>🗺️</span>
+                            <span>By State</span>
+                        </button>
+                        <button class="map-view-btn" data-map-mode="city">
+                            <span>🏙️</span>
+                            <span>By City</span>
+                        </button>
+                        <button class="map-view-btn" data-map-mode="department">
+                            <span>🏛️</span>
+                            <span>By Department</span>
+                        </button>
+                    </div>
+                    <div id="mapView"></div>
+                </div>
 
                 <div id="authorsView" class="hidden">
                     <div class="charts-container">
@@ -1143,6 +1272,21 @@ AND
                             <canvas id="collaborationChart"></canvas>
                         </div>
                     </div>
+                </div>
+
+                <!-- Active Filter Banner -->
+                <div class="active-filter-banner" id="mapFilterBanner">
+                    <div class="filter-banner-text">
+                        <span class="filter-banner-icon">📍</span>
+                        <span>
+                            <span class="filter-banner-label">Filtered by State:</span>
+                            <span class="filter-banner-value" id="filterStateName"></span>
+                        </span>
+                    </div>
+                    <button class="remove-filter-btn" id="removeMapFilter">
+                        <span>✕</span>
+                        <span>Remove Filter</span>
+                    </button>
                 </div>
 
                 <div id="results-header">
@@ -1188,8 +1332,12 @@ AND
         // Views
         const viewBtns = document.querySelectorAll('.view-btn');
         const chartsView = document.getElementById('chartsView');
+        const mapViewContainer = document.getElementById('mapViewContainer');
         const mapView = document.getElementById('mapView');
         const authorsView = document.getElementById('authorsView');
+
+        // Map mode buttons
+        const mapModeBtns = document.querySelectorAll('.map-view-btn');
 
         // Modals
         const welcomeModal = document.getElementById('welcomeModal');
@@ -1203,6 +1351,11 @@ AND
         const resetBtn = document.getElementById('resetBtn');
         const clearBtn = document.getElementById('clearBtn');
 
+        // Map filter elements
+        const mapFilterBanner = document.getElementById('mapFilterBanner');
+        const filterStateName = document.getElementById('filterStateName');
+        const removeMapFilterBtn = document.getElementById('removeMapFilter');
+
         // --- State ---
         let allStudies = [];
         let filteredStudies = [];
@@ -1211,6 +1364,8 @@ AND
         let map = null;
         let currentView = 'charts';
         let isSearching = false;
+        let activeMapFilter = null; // Track active map filter
+        let mapMode = 'state'; // Track map visualization mode: 'state', 'city', or 'department'
 
         // --- Constants ---
         const USA_SYNONYMS = ['USA', 'U.S.A', 'U.S.', 'US', 'United States of America', 'United States'];
@@ -1703,7 +1858,7 @@ AND
 
             // Hide all views
             chartsView.classList.add('hidden');
-            mapView.classList.add('hidden');
+            mapViewContainer.classList.add('hidden');
             authorsView.classList.add('hidden');
 
             // Show selected view
@@ -1714,12 +1869,12 @@ AND
                     updateCharts(filteredStudies);
                     break;
                 case 'map':
-                    mapView.classList.remove('hidden');
+                    mapViewContainer.classList.remove('hidden');
                     // Fix Leaflet rendering issue when container was hidden
                     if (map) {
                         setTimeout(() => {
                             map.invalidateSize();
-                            updateMap(filteredStudies);
+                            updateMapByMode(filteredStudies);
                         }, 100);
                     }
                     break;
@@ -1729,6 +1884,16 @@ AND
                     break;
             }
         }
+
+        // Map mode toggle event listeners
+        mapModeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                mapModeBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                mapMode = btn.getAttribute('data-map-mode');
+                updateMapByMode(filteredStudies);
+            });
+        });
 
         // --- Filtering Logic ---
         function getFilteredStudiesIgnoring(ignoreField) {
@@ -1982,6 +2147,38 @@ AND
         }
 
         // --- Map Logic ---
+        // Approximate geocoding for cities and departments (offset from state coordinates)
+        function getApproximateCoords(state, index, total) {
+            const baseCoords = STATE_COORDS[state];
+            if (!baseCoords) return null;
+
+            // Create a circular pattern around the state coordinates
+            const radius = 0.5; // degrees (approximately 55km)
+            const angle = (index / total) * 2 * Math.PI;
+            const offsetLat = Math.cos(angle) * radius;
+            const offsetLon = Math.sin(angle) * radius;
+
+            return [
+                baseCoords[0] + offsetLat,
+                baseCoords[1] + offsetLon
+            ];
+        }
+
+        // Main function to update map based on selected mode
+        function updateMapByMode(studies) {
+            switch (mapMode) {
+                case 'state':
+                    updateMapByState(studies);
+                    break;
+                case 'city':
+                    updateMapByCity(studies);
+                    break;
+                case 'department':
+                    updateMapByDepartment(studies);
+                    break;
+            }
+        }
+
         function initializeMap() {
             if (map) {
                 map.remove();
@@ -2018,9 +2215,10 @@ AND
             }
         }
 
-        function updateMap(studies) {
+        // Update map by STATE
+        function updateMapByState(studies) {
             if (!map) return;
-            
+
             // Clear existing markers
             map.eachLayer(layer => {
                 if (layer instanceof L.Marker) {
@@ -2029,11 +2227,21 @@ AND
             });
 
             const stateCounts = {};
+            const stateCities = {};
+
             studies.forEach(study => {
                 study.authors.forEach(author => {
                     author.affiliations.forEach(aff => {
                         if (aff.isUSA && aff.state) {
                             stateCounts[aff.state] = (stateCounts[aff.state] || 0) + 1;
+
+                            // Track cities per state
+                            if (aff.city) {
+                                if (!stateCities[aff.state]) {
+                                    stateCities[aff.state] = new Set();
+                                }
+                                stateCities[aff.state].add(aff.city);
+                            }
                         }
                     });
                 });
@@ -2043,17 +2251,246 @@ AND
                 const coords = STATE_COORDS[state];
                 if (coords) {
                     const marker = L.marker(coords).addTo(map);
-                    marker.bindPopup(`<b>${state}</b><br>${count} studies<br><button onclick="filterByState('${state}')">Filter by this state</button>`);
+
+                    // Build popup content with better information
+                    const cities = stateCities[state] ? Array.from(stateCities[state]).slice(0, 5) : [];
+                    const cityText = cities.length > 0
+                        ? `<div style="margin-top: 8px; font-size: 0.9em; color: #a8b2d1;">
+                             <strong>Top Cities:</strong><br>
+                             ${cities.join(', ')}${cities.length === 5 ? '...' : ''}
+                           </div>`
+                        : '';
+
+                    const popupContent = `
+                        <div style="text-align: center; min-width: 200px;">
+                            <h3 style="margin: 0 0 8px 0; color: #4a9eff;">${state}</h3>
+                            <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 12px;">
+                                ${count} ${count === 1 ? 'Study' : 'Studies'}
+                            </div>
+                            ${cityText}
+                            <button onclick="filterByStateFromMap('${state}')"
+                                    style="width: 100%; margin-top: 12px; background: linear-gradient(135deg, #4a9eff 0%, #357abd 100%);
+                                           color: white; border: none; padding: 10px; border-radius: 8px;
+                                           cursor: pointer; font-weight: 600; font-size: 0.95em;">
+                                📍 Filter Results
+                            </button>
+                        </div>
+                    `;
+
+                    marker.bindPopup(popupContent, {
+                        maxWidth: 280,
+                        className: 'custom-popup'
+                    });
                 }
             });
         }
 
-        // Global function for map popup buttons
-        window.filterByState = function(state) {
+        // Update map by CITY
+        function updateMapByCity(studies) {
+            if (!map) return;
+
+            // Clear existing markers
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            const cityCounts = {};
+            const cityStates = {};
+
+            studies.forEach(study => {
+                study.authors.forEach(author => {
+                    author.affiliations.forEach(aff => {
+                        if (aff.isUSA && aff.city && aff.state) {
+                            const cityKey = `${aff.city}, ${aff.state}`;
+                            cityCounts[cityKey] = (cityCounts[cityKey] || 0) + 1;
+                            cityStates[cityKey] = aff.state;
+                        }
+                    });
+                });
+            });
+
+            // Group cities by state for positioning
+            const citiesByState = {};
+            Object.keys(cityCounts).forEach(cityKey => {
+                const state = cityStates[cityKey];
+                if (!citiesByState[state]) {
+                    citiesByState[state] = [];
+                }
+                citiesByState[state].push(cityKey);
+            });
+
+            // Add markers with approximate positioning
+            Object.entries(citiesByState).forEach(([state, cities]) => {
+                cities.forEach((cityKey, index) => {
+                    const coords = getApproximateCoords(state, index, cities.length);
+                    if (coords) {
+                        const count = cityCounts[cityKey];
+                        const marker = L.marker(coords).addTo(map);
+
+                        const popupContent = `
+                            <div style="text-align: center; min-width: 200px;">
+                                <h3 style="margin: 0 0 8px 0; color: #4a9eff;">${cityKey}</h3>
+                                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 12px;">
+                                    ${count} ${count === 1 ? 'Study' : 'Studies'}
+                                </div>
+                                <button onclick="filterByCityFromMap('${cityKey.split(', ')[0]}')"
+                                        style="width: 100%; margin-top: 12px; background: linear-gradient(135deg, #4a9eff 0%, #357abd 100%);
+                                               color: white; border: none; padding: 10px; border-radius: 8px;
+                                               cursor: pointer; font-weight: 600; font-size: 0.95em;">
+                                    🏙️ Filter Results
+                                </button>
+                            </div>
+                        `;
+
+                        marker.bindPopup(popupContent, {
+                            maxWidth: 280,
+                            className: 'custom-popup'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Update map by DEPARTMENT
+        function updateMapByDepartment(studies) {
+            if (!map) return;
+
+            // Clear existing markers
+            map.eachLayer(layer => {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            const deptCounts = {};
+            const deptStates = {};
+
+            studies.forEach(study => {
+                study.authors.forEach(author => {
+                    author.affiliations.forEach(aff => {
+                        if (aff.isUSA && aff.department && aff.state) {
+                            const deptKey = aff.department;
+                            deptCounts[deptKey] = (deptCounts[deptKey] || 0) + 1;
+                            if (!deptStates[deptKey]) {
+                                deptStates[deptKey] = new Set();
+                            }
+                            deptStates[deptKey].add(aff.state);
+                        }
+                    });
+                });
+            });
+
+            // Group departments by primary state (most common)
+            const deptsByState = {};
+            Object.entries(deptStates).forEach(([dept, states]) => {
+                const stateArray = Array.from(states);
+                const primaryState = stateArray[0]; // Use first state as primary
+                if (!deptsByState[primaryState]) {
+                    deptsByState[primaryState] = [];
+                }
+                deptsByState[primaryState].push(dept);
+            });
+
+            // Add markers with approximate positioning
+            Object.entries(deptsByState).forEach(([state, depts]) => {
+                depts.forEach((dept, index) => {
+                    const coords = getApproximateCoords(state, index, depts.length);
+                    if (coords) {
+                        const count = deptCounts[dept];
+                        const states = Array.from(deptStates[dept]).join(', ');
+                        const marker = L.marker(coords).addTo(map);
+
+                        const popupContent = `
+                            <div style="text-align: center; min-width: 220px;">
+                                <h3 style="margin: 0 0 8px 0; color: #4a9eff; font-size: 0.95em;">${dept}</h3>
+                                <div style="font-size: 0.85em; color: #a8b2d1; margin-bottom: 8px;">
+                                    ${states}
+                                </div>
+                                <div style="font-size: 1.2em; font-weight: bold; margin-bottom: 12px;">
+                                    ${count} ${count === 1 ? 'Study' : 'Studies'}
+                                </div>
+                                <button onclick="filterByDeptFromMap('${dept.replace(/'/g, "\\'")}')"
+                                        style="width: 100%; margin-top: 12px; background: linear-gradient(135deg, #4a9eff 0%, #357abd 100%);
+                                               color: white; border: none; padding: 10px; border-radius: 8px;
+                                               cursor: pointer; font-weight: 600; font-size: 0.95em;">
+                                    🏛️ Filter Results
+                                </button>
+                            </div>
+                        `;
+
+                        marker.bindPopup(popupContent, {
+                            maxWidth: 300,
+                            className: 'custom-popup'
+                        });
+                    }
+                });
+            });
+        }
+
+        // Global functions for map popup buttons - filters and shows banner
+        window.filterByStateFromMap = function(state) {
+            activeMapFilter = state;
             stateFilter.value = state;
+            filterStateName.textContent = state;
+            mapFilterBanner.classList.add('show');
             applyFilters();
-            switchView('charts');
+
+            // Scroll to results
+            setTimeout(() => {
+                document.getElementById('results-header').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
         };
+
+        window.filterByCityFromMap = function(city) {
+            activeMapFilter = city;
+            cityFilter.value = city;
+            filterStateName.textContent = city;
+            mapFilterBanner.querySelector('.filter-banner-label').textContent = 'Filtered by City:';
+            mapFilterBanner.classList.add('show');
+            applyFilters();
+
+            // Scroll to results
+            setTimeout(() => {
+                document.getElementById('results-header').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
+        };
+
+        window.filterByDeptFromMap = function(dept) {
+            activeMapFilter = dept;
+            deptFilter.value = dept;
+            filterStateName.textContent = dept;
+            mapFilterBanner.querySelector('.filter-banner-label').textContent = 'Filtered by Department:';
+            mapFilterBanner.classList.add('show');
+            applyFilters();
+
+            // Scroll to results
+            setTimeout(() => {
+                document.getElementById('results-header').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
+        };
+
+        // Remove map filter
+        removeMapFilterBtn.addEventListener('click', () => {
+            activeMapFilter = null;
+            stateFilter.value = 'all';
+            cityFilter.value = 'all';
+            deptFilter.value = 'all';
+            mapFilterBanner.classList.remove('show');
+            // Reset label back to state
+            mapFilterBanner.querySelector('.filter-banner-label').textContent = 'Filtered by State:';
+            applyFilters();
+        });
 
         // --- Rendering Logic ---
         function renderResults(studies) {
