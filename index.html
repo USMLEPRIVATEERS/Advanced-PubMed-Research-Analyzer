@@ -1038,7 +1038,7 @@ AND
             <div class="search-content active" id="uploadContent">
                 <div class="file-upload-area" id="fileUploadArea">
                     <div class="upload-icon">📁</div>
-                    <button class="file-label" onclick="document.getElementById('fileInput').click()">
+                    <button class="file-label" id="fileSelectBtn">
                         Select PubMed Files
                     </button>
                     <p>or drag and drop .txt files here</p>
@@ -1463,6 +1463,8 @@ AND
         }
 
         // --- Drag & Drop File Handling ---
+        const fileSelectBtn = document.getElementById('fileSelectBtn');
+
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             fileUploadArea.addEventListener(eventName, preventDefaults, false);
         });
@@ -1485,7 +1487,20 @@ AND
         });
 
         fileUploadArea.addEventListener('drop', handleDrop);
-        fileUploadArea.addEventListener('click', () => fileInput.click());
+
+        // Handle button click - separate from area click to avoid conflicts
+        fileSelectBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent event bubbling
+            fileInput.click();
+        });
+
+        // Handle click on upload area (but not on button or text)
+        fileUploadArea.addEventListener('click', (e) => {
+            // Only trigger if clicking directly on the upload area, not on button
+            if (e.target === fileUploadArea || e.target.classList.contains('upload-icon')) {
+                fileInput.click();
+            }
+        });
 
         function handleDrop(e) {
             const dt = e.dataTransfer;
