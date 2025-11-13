@@ -2548,7 +2548,7 @@ AND
             };
 
             // Add onclick handler for collaboration chart
-            if (enableClick && canvasId === 'collaborationChart') {
+            if (enableClick && (canvasId === 'collaborationChart' || canvasId === 'expandedChart')) {
                 chartConfig.options.onClick = (event, elements) => {
                     if (elements.length > 0) {
                         const index = elements[0].index;
@@ -2682,9 +2682,9 @@ AND
 
             const expandedCanvas = document.getElementById('expandedChart');
             const modalTitle = document.getElementById('chartModalTitle');
-            
+
             modalTitle.textContent = data.title;
-            
+
             // Destroy any existing chart in modal
             if (charts.expanded) {
                 charts.expanded.destroy();
@@ -2692,11 +2692,13 @@ AND
 
             // Create new chart in modal
             const ctx = expandedCanvas.getContext('2d');
-            
+
             if (data.type === 'line') {
                 charts.expanded = createLineChart('expandedChart', data.title, data.labels, data.data);
             } else {
-                charts.expanded = createBarChart('expandedChart', data.title, data.labels, data.data);
+                // Enable click for collaboration chart in expanded view
+                const enableClick = (chartType === 'collaboration');
+                charts.expanded = createBarChart('expandedChart', data.title, data.labels, data.data, enableClick);
             }
 
             showModal(chartModal);
