@@ -640,9 +640,55 @@
         /* --- Map --- */
         #mapView {
             height: 600px;
-            border-radius: 12px;
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 4px 15px var(--shadow-color);
+            box-shadow: 0 8px 32px var(--shadow-color);
+            background: var(--surface-color);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative;
+            z-index: 1;
+        }
+
+        #mapView .leaflet-container {
+            background: var(--surface-color);
+            border-radius: 20px;
+            height: 100%;
+            width: 100%;
+        }
+
+        /* Ensure Leaflet controls are visible */
+        .leaflet-control-zoom,
+        .leaflet-control-attribution {
+            z-index: 1000 !important;
+        }
+
+        /* Style Leaflet popup to match theme */
+        .leaflet-popup-content-wrapper {
+            background: var(--surface-gradient);
+            color: var(--text-color);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px var(--shadow-color);
+        }
+
+        .leaflet-popup-content button {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .leaflet-popup-content button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--glow-color);
+        }
+
+        .leaflet-popup-tip {
+            background: var(--surface-color);
         }
 
         /* --- Results List --- */
@@ -1639,12 +1685,12 @@ AND
             // Update buttons
             viewBtns.forEach(btn => btn.classList.remove('active'));
             document.querySelector(`[data-view="${view}"]`).classList.add('active');
-            
+
             // Hide all views
             chartsView.classList.add('hidden');
             mapView.classList.add('hidden');
             authorsView.classList.add('hidden');
-            
+
             // Show selected view
             currentView = view;
             switch(view) {
@@ -1654,7 +1700,13 @@ AND
                     break;
                 case 'map':
                     mapView.classList.remove('hidden');
-                    updateMap(filteredStudies);
+                    // Fix Leaflet rendering issue when container was hidden
+                    if (map) {
+                        setTimeout(() => {
+                            map.invalidateSize();
+                            updateMap(filteredStudies);
+                        }, 100);
+                    }
                     break;
                 case 'authors':
                     authorsView.classList.remove('hidden');
@@ -1919,11 +1971,36 @@ AND
             if (map) {
                 map.remove();
             }
-            map = L.map('mapView').setView([39.8283, -98.5795], 4); // Center of USA
-            
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
-            }).addTo(map);
+
+            // Ensure the map container is ready
+            const mapContainer = document.getElementById('mapView');
+            if (!mapContainer) {
+                console.error('Map container not found');
+                return;
+            }
+
+            try {
+                map = L.map('mapView', {
+                    center: [39.8283, -98.5795],
+                    zoom: 4,
+                    scrollWheelZoom: true,
+                    zoomControl: true
+                });
+
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                    attribution: '© OpenStreetMap contributors',
+                    maxZoom: 19
+                }).addTo(map);
+
+                // Force map to recalculate size
+                setTimeout(() => {
+                    if (map) {
+                        map.invalidateSize();
+                    }
+                }, 200);
+            } catch (error) {
+                console.error('Error initializing map:', error);
+            }
         }
 
         function updateMap(studies) {
