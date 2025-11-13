@@ -1014,6 +1014,97 @@
         .error-message.active {
             display: block;
         }
+
+        /* --- Collaboration Details Modal --- */
+        .collaboration-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .collaboration-table thead {
+            background: var(--surface-gradient);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .collaboration-table th {
+            padding: 1rem;
+            text-align: left;
+            color: var(--primary-color);
+            font-weight: 700;
+            border-bottom: 2px solid var(--border-color);
+        }
+
+        .collaboration-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .collaboration-table tbody tr {
+            transition: all 0.3s ease;
+        }
+
+        .collaboration-table tbody tr:hover {
+            background: rgba(74, 158, 255, 0.1);
+        }
+
+        .filter-author-btn {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-author-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px var(--glow-color);
+        }
+
+        .collab-info {
+            background: linear-gradient(135deg, rgba(74, 158, 255, 0.1) 0%, rgba(157, 78, 221, 0.1) 100%);
+            border-left: 4px solid var(--primary-color);
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+        }
+
+        .collab-info-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .collab-info-text {
+            color: var(--text-muted-color);
+            line-height: 1.6;
+        }
+
+        .table-container {
+            max-height: 60vh;
+            overflow-y: auto;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .frequency-badge {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
@@ -1059,6 +1150,35 @@
             <div class="modal-body">
                 <div class="chart-modal-content">
                     <canvas id="expandedChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Collaboration Details Modal -->
+    <div id="collaborationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="collaborationModalTitle">Collaboration Details</h2>
+                <button class="close-button" id="closeCollaborationModalBtn">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="collab-info">
+                    <div class="collab-info-title" id="collabInfoTitle"></div>
+                    <div class="collab-info-text" id="collabInfoText"></div>
+                </div>
+                <div class="table-container">
+                    <table class="collaboration-table">
+                        <thead>
+                            <tr>
+                                <th>Author Name</th>
+                                <th>Frequency</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody id="collaborationTableBody">
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -1285,6 +1405,11 @@ AND
         const chartModal = document.getElementById('chartModal');
         const closeModalBtn = document.getElementById('closeModalBtn');
         const closeChartModalBtn = document.getElementById('closeChartModalBtn');
+        const collaborationModal = document.getElementById('collaborationModal');
+        const closeCollaborationModalBtn = document.getElementById('closeCollaborationModalBtn');
+        const collaborationTableBody = document.getElementById('collaborationTableBody');
+        const collabInfoTitle = document.getElementById('collabInfoTitle');
+        const collabInfoText = document.getElementById('collabInfoText');
 
         // Action buttons
         const exportBtn = document.getElementById('exportBtn');
@@ -1356,7 +1481,8 @@ AND
 
         closeModalBtn.addEventListener('click', () => closeModal(welcomeModal));
         closeChartModalBtn.addEventListener('click', () => closeModal(chartModal));
-        [welcomeModal, chartModal].forEach(modal => {
+        closeCollaborationModalBtn.addEventListener('click', () => closeModal(collaborationModal));
+        [welcomeModal, chartModal, collaborationModal].forEach(modal => {
             modal.addEventListener('click', (e) => {
                 if (e.target === modal) closeModal(modal);
             });
@@ -2375,15 +2501,15 @@ AND
             if (charts.topAuthors) charts.topAuthors.destroy();
             if (charts.collaboration) charts.collaboration.destroy();
 
-            charts.topAuthors = createBarChart('topAuthorsChart', chartData['top-authors'].title, 
+            charts.topAuthors = createBarChart('topAuthorsChart', chartData['top-authors'].title,
                 chartData['top-authors'].labels, chartData['top-authors'].data);
-            charts.collaboration = createBarChart('collaborationChart', chartData.collaboration.title, 
-                chartData.collaboration.labels, chartData.collaboration.data);
+            charts.collaboration = createBarChart('collaborationChart', chartData.collaboration.title,
+                chartData.collaboration.labels, chartData.collaboration.data, true); // Enable click for collaboration
         }
 
-        function createBarChart(canvasId, title, labels, data) {
+        function createBarChart(canvasId, title, labels, data, enableClick = false) {
             const ctx = document.getElementById(canvasId).getContext('2d');
-            return new Chart(ctx, {
+            const chartConfig = {
                 type: 'bar',
                 data: {
                     labels: labels,
@@ -2419,7 +2545,25 @@ AND
                         }
                     }
                 }
-            });
+            };
+
+            // Add onclick handler for collaboration chart
+            if (enableClick && canvasId === 'collaborationChart') {
+                chartConfig.options.onClick = (event, elements) => {
+                    if (elements.length > 0) {
+                        const index = elements[0].index;
+                        const label = labels[index];
+                        const numAuthors = parseInt(label.split(' ')[0]);
+                        showCollaborationDetails(numAuthors);
+                    }
+                };
+                // Make cursor pointer on hover
+                chartConfig.options.onHover = (event, chartElement) => {
+                    event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
+                };
+            }
+
+            return new Chart(ctx, chartConfig);
         }
 
         function createLineChart(canvasId, title, labels, data) {
@@ -2462,6 +2606,66 @@ AND
                 }
             });
         }
+
+        // --- Collaboration Details Modal Logic ---
+        function showCollaborationDetails(numAuthors) {
+            // Find all studies with exactly numAuthors USA authors
+            const relevantStudies = filteredStudies.filter(study => {
+                const usaAuthors = study.authors.filter(authorHasUSAAffiliation);
+                return usaAuthors.length === numAuthors;
+            });
+
+            // Count author frequencies
+            const authorFrequency = {};
+            relevantStudies.forEach(study => {
+                const usaAuthors = study.authors.filter(authorHasUSAAffiliation);
+                usaAuthors.forEach(author => {
+                    authorFrequency[author.name] = (authorFrequency[author.name] || 0) + 1;
+                });
+            });
+
+            // Sort authors by frequency
+            const sortedAuthors = Object.entries(authorFrequency)
+                .sort((a, b) => b[1] - a[1]);
+
+            // Update modal content
+            collabInfoTitle.textContent = `Studies with ${numAuthors} ${numAuthors === 1 ? 'Author' : 'Authors'}`;
+            collabInfoText.textContent = `Found ${relevantStudies.length} studies with exactly ${numAuthors} USA ${numAuthors === 1 ? 'author' : 'authors'}. Below are the authors involved and their frequency in these collaborations.`;
+
+            // Populate table
+            collaborationTableBody.innerHTML = '';
+            sortedAuthors.forEach(([authorName, frequency]) => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${authorName}</td>
+                    <td><span class="frequency-badge">${frequency}</span></td>
+                    <td>
+                        <button class="filter-author-btn" onclick="filterByAuthor('${authorName.replace(/'/g, "\\'")}')">
+                            🔍 Filter Studies
+                        </button>
+                    </td>
+                `;
+                collaborationTableBody.appendChild(row);
+            });
+
+            // Show modal
+            showModal(collaborationModal);
+        }
+
+        // Global function to filter by author
+        window.filterByAuthor = function(authorName) {
+            researcherFilter.value = authorName;
+            closeModal(collaborationModal);
+            applyFilters();
+
+            // Scroll to results
+            setTimeout(() => {
+                document.getElementById('results-header').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }, 100);
+        };
 
         // --- Chart Expansion Logic ---
         document.addEventListener('click', (e) => {
